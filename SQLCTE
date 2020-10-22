@@ -1,0 +1,17 @@
+WITH CustomerOrders AS
+(
+    SELECT 
+       c.CustomerID, o.OrderID,
+       ROW_NUMBER() OVER(PARTITION BY c.CustomerID ORDER BY o.OrderDate DESC) AS 'RowN'
+    FROM
+       dbo.Customer c
+    INNER JOIN
+       dbo.Orders o ON o.CustomerID = c.CustomerID
+)
+DELETE FROM
+    dbo.Orders
+FROM
+    CustomerOrders co
+WHERE
+  dbo.Orders.OrderID = co.OrderID
+  AND co.RowN > 1
